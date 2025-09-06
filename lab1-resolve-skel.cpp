@@ -93,6 +93,7 @@ int main( int aArgc, char* aArgv[] )
 	inet_ntop(AF_INET, &addr->sin_addr, addrStr, sizeof(addrStr));
 	printf("  %s\n", addrStr);
 	freeaddrinfo(result);
+	printf("\n");
 
 	// Ok, we're done. Return success.
 	return 0;
