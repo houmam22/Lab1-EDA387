@@ -14,10 +14,16 @@
 
 #include <assert.h>
 #include <limits.h>
-//#include <unistd.h>
-//next lib is for windows
-#include <ws2tcpip.h>
-// linux lib's are #include <netdb.h>, <arpa/inet.h>, <sys/socket.h>, <unistd.h>
+#include <string.h>
+#ifdef __unix__
+	#include <netdb.h>
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
+	#include <unistd.h>
+#endif
+#ifdef _WIN32
+	#include <ws2tcpip.h>
+#endif
 
 #if !defined(HOST_NAME_MAX)
 #	if defined(__APPLE__)
@@ -40,11 +46,13 @@ void print_usage( const char* aProgramName );
 int main( int aArgc, char* aArgv[] )
 {
 	// Initialize Winsock only in windows
+	#ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
         fprintf(stderr, "WSAStartup failed\n");
         return 1;
     }
+	#endif
 	// Check if the user supplied a command line argument.
 	if( aArgc != 2 )
 	{
@@ -64,8 +72,10 @@ int main( int aArgc, char* aArgv[] )
 	{
 		//printf("am here");
 		perror( "gethostname(): " );
+		#ifdef _WIN32 
 		//next line is for windows
 		WSACleanup();
+		#endif
 		return 1;
 	}
 
@@ -76,13 +86,15 @@ int main( int aArgc, char* aArgv[] )
 	
 	struct addrinfo hint;
 	struct addrinfo *result;
-
 	memset(&hint, 0, sizeof(hint));
 	hint.ai_family = AF_INET;
 	int status = getaddrinfo(remoteHostName, NULL, &hint, &result);
 	if(status){
 		printf("getaddrinfo error: %s\n", gai_strerror(status));
-		WSACleanup(); // for windows
+		#ifdef _WIN32 
+		//next line is for windows
+		WSACleanup();getaddri
+		#endif
 	}
 
 	struct addrinfo *tmp = result;
